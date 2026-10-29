@@ -1,0 +1,17 @@
+# First test case for the rebuilt agent -- deliberately the same scope
+# as the old repo's one confirmed-working run (Session 2, PIR+LED on an
+# Arduino Uno), so a pass here is a real re-verification, not a new
+# untested claim, and a fail here tells you the rebuild regressed
+# something the old pipeline already had working.
+board: arduino_uno
+goal: >
+  Blink an LED when the PIR motion sensor detects motion, turn it off
+  when motion stops.
+components:
+  - name: PIR motion sensor
+    connection: digital
+    notes: "active high when motion detected"
+  - name: LED
+    connection: digital
+    notes: "with current-limiting resistor, standard indicator LED"
+constraints: []
