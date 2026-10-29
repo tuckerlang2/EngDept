@@ -43,23 +43,35 @@ here to avoid the two going out of sync.
 
 ## Current state
 (Update this every session)
-- Status: scaffold written, NOT YET RUN against the real SDK. This is
-  the single most important fact about the project right now — nothing
-  below should be read as "working," only as "exists."
-- Last worked on: initial build — ported `hardware_lookup.py`,
-  `spec_schema.py`, `compile_check.py`, `config/boards.yaml`, and
-  `hardware_reference/*.md` unchanged from `embedded-code-gen-agent`;
-  wrote `agent/coder_agent.py`, `agent/system_prompt.md`,
-  `agent/tools.py` fresh, using the Claude Agent SDK (verified current
-  API against the SDK's own README at build time, not from memory).
-- Next step: run `python3 agent/coder_agent.py specs/example_pir_led.yaml`
-  for the first time. This spec deliberately re-runs the old repo's one
-  confirmed-working case (PIR+LED, Arduino Uno) — a pass here is a real
-  regression check, not a new unverified claim; a fail tells you
-  specifically what the rebuild broke relative to what already worked.
-  Expect to need to fix something on first run — the SDK
-  message-handling code was written from current docs, not validated
-  against a live run.
+- Status: SDK plumbing verified working (first real run completed
+  2026-10-29). Full pipeline still NOT YET VERIFIED — the one run so
+  far escalated before reaching `compile_check`'s actual PASS/FAIL,
+  because `arduino-cli` wasn't installed in that run environment. The
+  old repo's one confirmed-working case (a clean compile) has still
+  never been re-verified in this rebuild.
+- Last worked on (2026-10-29, session 2): ran
+  `python3 agent/coder_agent.py specs/example_pir_led.yaml` for the
+  first time. The SDK message-handling code (the thing expected to
+  break first) worked correctly end to end — client connected, agent
+  called `write_code` then `compile_check` in order, got a real tool
+  error, escalated honestly instead of self-certifying. The run
+  environment was missing `arduino-cli`, so `compile_check` never
+  actually compiled anything; `generated/pir_led.ino` was written but
+  is unverified. See PROGRESS.md's 2026-10-29 Session 2 entry for
+  full detail, including why `arduino-cli` couldn't be installed in
+  that particular sandboxed session (network allowlist, not a project
+  issue) — don't let that environment-specific note get mistaken for
+  a project blocker in general.
+- Next step: in an environment with normal internet access, install
+  `arduino-cli` + the `arduino:avr` core, confirm `arduino-cli
+  version` and `arduino-cli compile --fqbn arduino:avr:uno <dir>`
+  work standalone, then re-run
+  `python3 agent/coder_agent.py specs/example_pir_led.yaml` and
+  require a real `STATUS: PASS` (meaning `compile_check` itself
+  returned PASS, not just that the agent didn't crash). That's the
+  actual bar for "the rebuild works," not the code existing or the
+  SDK layer behaving — both of those are now true but are not
+  sufficient on their own.
 - Open decisions: see `docs/engineering-department-notes.md`'s "Open
   questions" section (operations department placement, per-department
   spend thresholds, when to build a literal orchestrator agent).
