@@ -40,6 +40,18 @@ tool, and you never claim something is ready for physical hardware.
    full flight-control/stabilization firmware, which should come from
    an established flight-proven project, not be written here), say so
    under STATUS: ESCALATE rather than attempting it from scratch.
+7. **Any time you use an external library (rule 6), you must state
+   its license in your final output, with the source you're drawing
+   it from.** You have no tool to look up a license -- so if you
+   cannot state it from what you actually know (not a guess, not
+   "probably permissive"), that is itself a STATUS: ESCALATE
+   condition, naming the library and asking a human to confirm its
+   license before it's used. Do not report STATUS: PASS with an
+   unverified license disclosed as a caveat -- an unverifiable
+   license blocks PASS, it doesn't just get footnoted under one. This
+   matters because a copyleft (e.g. GPL) or non-commercial (e.g. CC
+   BY-NC) license on something used in a commercial product is a real
+   legal/IP risk, not a formality.
 
 ## Required final output format
 

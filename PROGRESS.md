@@ -154,3 +154,78 @@ Append a new entry every session. Don't delete old entries.
   second, genuinely different spec (different board or component) —
   before this counts as "generalizes," not just "this one case still
   works."
+
+---
+
+## 2026-10-30 — Session 4: second data point (ESP32+DHT22) — real PASS, real gap found
+- Wrote `specs/example_dht22_esp32.yaml`: ESP32 DevKitC V4 + DHT22,
+  deliberately different from Session 3's case on every axis that
+  matters — different board, different component class (DHT22's timed
+  one-wire digital protocol vs PIR's simple active-high digital
+  input), different arduino-cli core (`esp32:esp32`, which
+  `config/boards.yaml` already notes is not installed by default,
+  unlike `arduino:avr`).
+- Ran on the same Windows machine, after installing the `esp32:esp32`
+  core and the `DHT sensor library` + `Adafruit Unified Sensor`
+  Arduino libraries. Clean run, no retries needed.
+- **Result: real `STATUS: PASS`.** `compile_check` invoked
+  `arduino-cli compile --fqbn esp32:esp32:esp32` and it succeeded:
+  273,996 bytes flash (20%), 22,140 bytes RAM (6%). Generated sketch
+  `esp32_dht22_serial.ino` reads the DHT22 on GPIO4 every 5s and
+  prints over serial at 115200 baud. Nothing flashed to hardware.
+- **This is the real second data point step 2 called for.** Two
+  independent passes on genuinely different board/component
+  combinations — not a second run of the same case — is actual
+  evidence the rebuild's grounded-codegen + compile-check loop
+  generalizes, not just that it memorized one known-good case.
+- Agent-disclosed assumptions (not independently re-verified here):
+  GPIO4 for the DHT22 data pin (reference lists it as safe
+  general-purpose, not strapping/flash/input-only); DHT22 powered
+  from 3.3V per the board's logic-level note; an external 4.7k-10k
+  pull-up on the data line (not in the hardware reference — agent
+  sourced this from "typical datasheets" per the spec's own note, a
+  reasonable but unverified-by-us assumption); 2s power-up delay
+  before first read; "Temperature: X.X C, Humidity: Y.Y %" serial
+  output format.
+- **Real gap found, worth tracking as its own item, not just a
+  footnote:** the agent correctly preferred an established library
+  (Adafruit DHT sensor library, which depends on Adafruit Unified
+  Sensor) over hand-rolling the one-wire timing protocol itself — that
+  part of `agent/system_prompt.md` rule 6 worked as intended. But the
+  agent explicitly disclosed it did **not** check either library's
+  license, and said so plainly rather than silently proceeding or
+  fabricating a license claim — that disclosure is good behavior. The
+  underlying problem: CLAUDE.md's newer non-negotiable rule
+  ("mandatory before incorporating anything external: check and
+  record its license... escalate, don't silently proceed") was never
+  folded into `agent/system_prompt.md` as an instruction the agent
+  can actually act on, and the agent has no web-fetch or license-
+  lookup tool even if it were instructed to check. So the rule exists
+  in the project's docs but isn't enforced by the running system yet.
+  Checked the two licenses manually for this session: DHT sensor
+  library (adafruit/DHT-sensor-library) is MIT; Adafruit Unified
+  Sensor (adafruit/Adafruit_Sensor) is Apache-2.0. Both permissive,
+  no commercial-use or copyleft conflict — so no escalation was
+  actually warranted here, but that was luck/manual follow-up, not
+  something the system itself verified or would have caught if the
+  license had been GPL or CC BY-NC instead.
+- **Fixed same session:** added rule 7 to `agent/system_prompt.md`:
+  "Any time you use an external library (rule 6), you must state its
+  license... if you cannot state it from what you actually know, that
+  is itself a STATUS: ESCALATE condition... Do not report STATUS:
+  PASS with an unverified license disclosed as a caveat." This closes
+  the gap this session found — the agent has no license-lookup tool,
+  so the fix can't make it verify a license itself, but it does make
+  "I can't verify this" a hard stop instead of a footnote.
+  **Not yet re-verified against a live run** — no spec has been
+  re-run since this prompt edit. Don't treat this as a confirmed
+  behavior change until the next run that actually uses an external
+  library exercises it (either a correct disclosure or a correct
+  escalation).
+- Next step: move to **step 3** — start scoping the design/3D agent
+  (first blocker per the original plan: no existing CAD model or
+  measured physical envelope of anything it would design against yet
+  — figure out the first real design task and what data it needs
+  before writing that agent's spec). Opportunistically confirm rule 7
+  fires correctly the next time any spec pulls in an external
+  library, rather than assuming the prompt edit alone is proof.

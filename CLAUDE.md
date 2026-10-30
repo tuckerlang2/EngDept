@@ -62,28 +62,53 @@ here to avoid the two going out of sync.
 
 ## Current state
 (Update this every session)
-- Status: **Step 1 of the 3-step plan (coder agent alone) is cleared.**
-  Real `STATUS: PASS` achieved 2026-10-30 — `compile_check` actually
-  invoked `arduino-cli compile --fqbn arduino:avr:uno` and it
-  succeeded (1008 bytes flash, 14 bytes RAM) on the PIR+LED spec, the
-  old repo's one historical success, now re-verified in this rebuild.
-  One fixed bug stands between this and the prior session: see below.
-- Last worked on (2026-10-30, session 3): ran
-  `python3 agent/coder_agent.py specs/example_pir_led.yaml` on a real
-  Windows machine with `arduino-cli` + `arduino:avr` core installed.
-  First run crashed with `UnicodeEncodeError` — `print(text)` in
-  `coder_agent.py`'s response loop choked on a non-ASCII character
-  (an arrow glyph) because Windows consoles default to cp1252. Fixed
-  by adding `sys.stdout.reconfigure(encoding="utf-8")` at the top of
-  `main()`. Second run passed cleanly end to end. Full detail,
-  including the agent's disclosed assumptions (pin choices, 2Hz blink
-  rate, PIR voltage) in PROGRESS.md's 2026-10-30 Session 3 entry.
-- Next step: **Step 2 of the 3-step plan** — write and run a second
-  spec that is genuinely new (a different board or component than
-  PIR+LED), to get a real second data point. One pass on one spec is
-  a regression check, not evidence the agent generalizes across
-  boards/components. Do not start on the design/3D agent (step 3)
-  before this.
+- Status: **Steps 1 and 2 of the 3-step plan (coder agent alone) are
+  cleared.** Two independent `STATUS: PASS` results, on genuinely
+  different board/component combinations: PIR+LED/Arduino Uno
+  (2026-10-30, session 3) and DHT22/ESP32 DevKitC (2026-10-30, session
+  4). That's a real second data point, not just a replay — see below
+  for a gap the second run surfaced that still needs closing before
+  step 3 starts.
+- Last worked on (2026-10-30, session 4): ran
+  `python3 agent/coder_agent.py specs/example_dht22_esp32.yaml` —
+  different board (ESP32 vs Arduino Uno), different component class
+  (DHT22's timed one-wire protocol vs PIR's simple digital read),
+  different arduino-cli core (`esp32:esp32`, not preinstalled, unlike
+  `arduino:avr`). Real `STATUS: PASS`: compiled for
+  `esp32:esp32:esp32`, 273,996 bytes flash (20%), 22,140 bytes RAM
+  (6%). Full detail, including disclosed assumptions (GPIO4 data pin,
+  external pull-up, 2s power-up delay, output format), in PROGRESS.md.
+  **Real gap found:** the agent used the Adafruit DHT sensor library
+  and Adafruit Unified Sensor library (correctly preferring an
+  established library per rule 6 in `agent/system_prompt.md`) but
+  explicitly disclosed it did not check their licenses — it has no
+  tool capable of doing so, and `system_prompt.md`'s rule 6 only says
+  to prefer known libraries, not to verify or escalate on license.
+  The newer CLAUDE.md rule ("mandatory before incorporating anything
+  external: check and record its license... escalate, don't silently
+  proceed") was never folded into `system_prompt.md` as an actual
+  instruction the agent can act on, and the agent has no web-fetch
+  tool to do the lookup itself even if instructed. This time it's
+  moot — checked manually, both libraries are MIT/Apache-2.0,
+  commercial-safe, no escalation needed — but the agent correctly
+  disclosing "I couldn't check this" rather than silently passing is
+  the one thing that worked; the rule itself is still unenforced by
+  the running system. Treat this as real coverage, not resolved.
+  **Fixed same session:** added rule 7 to `agent/system_prompt.md` —
+  an external library whose license the agent cannot state from what
+  it actually knows is now itself a required `STATUS: ESCALATE`,
+  never a disclosed-but-passed caveat under `STATUS: PASS`. Not yet
+  re-tested against a live run (no spec has been re-run since the
+  prompt change) — treat as a design fix made, not a verified
+  behavior change, until it's actually exercised.
+- Next step: **Step 3** — start scoping the design/3D agent per the
+  original plan (first blocker: no existing CAD model or measured
+  physical envelope of anything it would design against yet — figure
+  out the first real design task and what data it needs before
+  writing that agent's spec). Opportunistically, the next time any
+  spec exercises an external library, confirm rule 7 actually fires
+  as intended (either a correct license disclosure or a correct
+  escalation) rather than assuming the prompt edit alone is proof.
 - Open decisions: see `docs/engineering-department-notes.md`'s "Open
   questions" section (operations department placement, per-department
   spend thresholds, when to build a literal orchestrator agent).
