@@ -62,35 +62,28 @@ here to avoid the two going out of sync.
 
 ## Current state
 (Update this every session)
-- Status: SDK plumbing verified working (first real run completed
-  2026-10-29). Full pipeline still NOT YET VERIFIED — the one run so
-  far escalated before reaching `compile_check`'s actual PASS/FAIL,
-  because `arduino-cli` wasn't installed in that run environment. The
-  old repo's one confirmed-working case (a clean compile) has still
-  never been re-verified in this rebuild.
-- Last worked on (2026-10-29, session 2): ran
-  `python3 agent/coder_agent.py specs/example_pir_led.yaml` for the
-  first time. The SDK message-handling code (the thing expected to
-  break first) worked correctly end to end — client connected, agent
-  called `write_code` then `compile_check` in order, got a real tool
-  error, escalated honestly instead of self-certifying. The run
-  environment was missing `arduino-cli`, so `compile_check` never
-  actually compiled anything; `generated/pir_led.ino` was written but
-  is unverified. See PROGRESS.md's 2026-10-29 Session 2 entry for
-  full detail, including why `arduino-cli` couldn't be installed in
-  that particular sandboxed session (network allowlist, not a project
-  issue) — don't let that environment-specific note get mistaken for
-  a project blocker in general.
-- Next step: in an environment with normal internet access, install
-  `arduino-cli` + the `arduino:avr` core, confirm `arduino-cli
-  version` and `arduino-cli compile --fqbn arduino:avr:uno <dir>`
-  work standalone, then re-run
-  `python3 agent/coder_agent.py specs/example_pir_led.yaml` and
-  require a real `STATUS: PASS` (meaning `compile_check` itself
-  returned PASS, not just that the agent didn't crash). That's the
-  actual bar for "the rebuild works," not the code existing or the
-  SDK layer behaving — both of those are now true but are not
-  sufficient on their own.
+- Status: **Step 1 of the 3-step plan (coder agent alone) is cleared.**
+  Real `STATUS: PASS` achieved 2026-10-30 — `compile_check` actually
+  invoked `arduino-cli compile --fqbn arduino:avr:uno` and it
+  succeeded (1008 bytes flash, 14 bytes RAM) on the PIR+LED spec, the
+  old repo's one historical success, now re-verified in this rebuild.
+  One fixed bug stands between this and the prior session: see below.
+- Last worked on (2026-10-30, session 3): ran
+  `python3 agent/coder_agent.py specs/example_pir_led.yaml` on a real
+  Windows machine with `arduino-cli` + `arduino:avr` core installed.
+  First run crashed with `UnicodeEncodeError` — `print(text)` in
+  `coder_agent.py`'s response loop choked on a non-ASCII character
+  (an arrow glyph) because Windows consoles default to cp1252. Fixed
+  by adding `sys.stdout.reconfigure(encoding="utf-8")` at the top of
+  `main()`. Second run passed cleanly end to end. Full detail,
+  including the agent's disclosed assumptions (pin choices, 2Hz blink
+  rate, PIR voltage) in PROGRESS.md's 2026-10-30 Session 3 entry.
+- Next step: **Step 2 of the 3-step plan** — write and run a second
+  spec that is genuinely new (a different board or component than
+  PIR+LED), to get a real second data point. One pass on one spec is
+  a regression check, not evidence the agent generalizes across
+  boards/components. Do not start on the design/3D agent (step 3)
+  before this.
 - Open decisions: see `docs/engineering-department-notes.md`'s "Open
   questions" section (operations department placement, per-department
   spend thresholds, when to build a literal orchestrator agent).

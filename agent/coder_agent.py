@@ -127,6 +127,16 @@ async def run_coder_agent(spec_path: Path) -> int:
 
 
 def main():
+    # Force UTF-8 stdout. Without this, a Windows console (cp1252 by
+    # default) raises UnicodeEncodeError the moment the model's output
+    # contains a non-ASCII character (e.g. an em dash or an arrow like
+    # "->" written as "→") -- which happens routinely in ordinary
+    # explanatory text, not just edge cases. That crash looks
+    # indistinguishable from a real agent failure in a headless run,
+    # masking whatever actually happened. Found 2026-10-30 on the first
+    # real run on Windows; see PROGRESS.md.
+    sys.stdout.reconfigure(encoding="utf-8")
+
     if len(sys.argv) != 2:
         print("Usage: python3 coder_agent.py path/to/spec.yaml", file=sys.stderr)
         sys.exit(2)

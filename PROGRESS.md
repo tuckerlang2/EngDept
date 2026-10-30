@@ -108,3 +108,49 @@ Append a new entry every session. Don't delete old entries.
   counts as a regression check passed. Until then, the rebuild's SDK
   layer is validated but the full pipeline (including the one thing
   the old repo actually proved — a clean compile) is still unverified.
+
+---
+
+## 2026-10-30 — Session 3: real STATUS: PASS on Windows, found and fixed a genuine bug
+- Ran on the user's own Windows machine (Python 3.13, `arduino-cli`
+  1.5.1, `arduino:avr` core already installed). First end-to-end
+  attempt at an actual compile verdict for this rebuild.
+- **Bug found (first run): `UnicodeEncodeError` crash — not a hardware
+  or SDK-protocol bug.** `coder_agent.py`'s `print(text)` in the
+  streaming-response loop crashed the moment the model's reply
+  contained a non-ASCII character (an arrow glyph, "→") — a Windows
+  console defaults to the cp1252 encoding, which can't encode it.
+  This is a more specific version of the bug flagged as most likely
+  up front ("SDK message-handling code," not the hardware-grounding
+  logic): it's an *output-encoding* bug, not a protocol bug, and it
+  happens routinely — any ordinary reply with an em dash, curly quote,
+  or arrow triggers it, not just edge-case input. In a headless/
+  orchestrator context this crash is indistinguishable from a genuine
+  agent failure, so it had to be fixed at the source, not worked
+  around per-call.
+- **Fix applied and committed:** `sys.stdout.reconfigure(encoding=
+  "utf-8")` at the top of `main()` in `agent/coder_agent.py`, forcing
+  UTF-8 stdout regardless of the host console's default codepage.
+- **Second run, with the fix: a real `STATUS: PASS`.** Exit code 0.
+  `compile_check` actually invoked `arduino-cli compile --fqbn
+  arduino:avr:uno` and it succeeded: 1008 bytes flash, 14 bytes RAM.
+  This is the bar Sessions 1–2 couldn't clear — not "the agent ran
+  without crashing" but a genuine compiler PASS. **First time this
+  rebuild has cleared that bar.** It reproduces the old
+  `embedded-code-gen-agent` repo's one historical success (PIR+LED on
+  Uno), so this is a real regression check passed, not a new
+  unverified claim.
+- Generated sketch used D2 for the PIR input and the Uno's built-in
+  LED (D13) for output rather than an external LED — reasonable since
+  the spec didn't pin an LED pin, but worth noting for anyone
+  physically wiring this up: an external LED on D13 would be
+  redundant with the onboard one, not required to see the behavior.
+  Agent-disclosed assumptions, not independently re-verified here:
+  motion → 2 Hz blink while detected, solid off when motion stops;
+  PIR assumed 5V-compatible since the spec didn't name the part.
+- Nothing flashed to physical hardware — compile-only, as required.
+- **The primary coder agent has now cleared step 1 of the 3-step
+  plan.** Per the project's sequencing discipline, next is step 2 — a
+  second, genuinely different spec (different board or component) —
+  before this counts as "generalizes," not just "this one case still
+  works."
