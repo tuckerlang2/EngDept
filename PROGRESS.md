@@ -291,3 +291,43 @@ Append a new entry every session. Don't delete old entries.
   the output-format and verification-gate questions in
   `docs/design-agent-first-task.md` are real but secondary; don't
   spend more time on them until the measurement exists.
+
+---
+
+## 2026-10-30 — Session 6: dimensional blocker on SG90 bracket cleared
+- User supplied the exact ordered part's own dimension diagram
+  (Beffkkip-branded, same ASIN as the part recorded in Session 5) --
+  a real source specific to the actual servo, not a cross-manufacturer
+  aggregate. Read off it: overall case height 32mm, case width 12.5mm,
+  **mounting tab hole-to-hole spacing 22.4mm** (the number that was
+  missing from every public source checked in Session 5), overall
+  footprint 31.8mm long. Two sub-height figures (18mm/25mm) split the
+  32mm total between the upper gearbox housing and main body, but
+  which label is which isn't fully certain from the image -- doesn't
+  block the bracket, since footprint + hole spacing are what matter
+  for mounting.
+- Mounting tab hole diameter was still missing after the diagram (it
+  doesn't show hole size). Checked whether a public source could fill
+  this in before accepting anything from the user without a check --
+  an Arduino forum thread on this exact question had posters
+  disagreeing from "just under 2mm" to "M3," and conflated horn screws
+  with tab screws. Not usable. **User then directly confirmed the
+  mounting screw is M3.** Recorded that as the working value, with a
+  derived (not measured) clearance-hole sizing note (~3.2-3.4mm is
+  standard practice for an M3 clearance fit) for the bracket's own
+  mating holes.
+- `component_reference/sg90_servo.md` status upgraded from
+  "INCOMPLETE -- do not use to ground a design agent yet" to "GROUNDED
+  FOR A FIRST DRAFT." Only remaining physical gap: tab thickness
+  (affects screw length, not hole layout -- doesn't block drafting a
+  bracket design).
+- Updated `docs/design-agent-first-task.md`'s status accordingly: the
+  blocker on writing an actual design-agent spec is no longer physical
+  data, it's the two architecture questions already identified in
+  Session 5 (output file format; a compile-check equivalent for
+  mechanical designs) plus whether this first task even needs an
+  LLM-based agent versus a plain parametric script.
+- Next step: resolve those two (three, counting the LLM-vs-script
+  question) open design questions. Tab thickness can be measured in
+  parallel whenever the physical part is in hand; it's not on the
+  critical path anymore.

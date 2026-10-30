@@ -7,17 +7,18 @@ buildable spec — see "Status" below. Compare
 `docs/primary-coder-agent-spec.md` for what a completed spec for this
 agent should eventually look like once this doc's blocker clears.
 
-## Status: BLOCKED on physical measurement
-This project has no CAD model and no measured physical envelope of
-anything a design agent would design against — that was the identified
-gap before this scoping started, and it's still open. See
-`component_reference/sg90_servo.md`'s "What's missing" section for the
-specific numbers needed and how to get them (calipers on the real
-part). Do not write `agent/design_agent.py` or a design-equivalent of
-`system_prompt.md` before that file is filled in — doing so now would
-repeat the exact mistake the coder agent's hardware-grounding rule
-exists to prevent, one level up (mechanical facts instead of
-electrical ones).
+## Status: dimensionally grounded for a first draft; two design
+questions still open
+`component_reference/sg90_servo.md` now has what a first bracket
+draft needs — footprint, hole spacing, and hole diameter — sourced
+from the product's own dimension diagram plus direct user
+confirmation on screw size, not from the inconsistent public sources
+checked earlier. The one still-open physical item (tab thickness)
+affects screw-length selection, not the bracket's hole layout, so it
+doesn't block drafting. **What still blocks writing
+`agent/design_agent.py` or a design-equivalent of `system_prompt.md`
+is not physical data anymore — it's the two open architecture
+questions below** (output format, verification-gate equivalent).
 
 ## Chosen first task
 A mounting bracket for an SG90 micro servo (the specific part in
@@ -93,6 +94,10 @@ scoping output of this doc)
   the output-format decision above is made.
 
 ## Next action
-Measure the physical servo (see `component_reference/sg90_servo.md`)
-and fill in its missing fields. Everything else in this doc is
-downstream of that.
+Resolve the two open design questions above (output format; a
+compile-check equivalent for mechanical designs) and the "does this
+need to be an LLM agent at all" question — these, not physical
+measurement, are now what's between this doc and a real spec. Tab
+thickness (the one remaining physical gap, see
+`component_reference/sg90_servo.md`) can be measured in parallel; it
+doesn't block this.

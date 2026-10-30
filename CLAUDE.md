@@ -101,36 +101,37 @@ here to avoid the two going out of sync.
   re-tested against a live run (no spec has been re-run since the
   prompt change) — treat as a design fix made, not a verified
   behavior change, until it's actually exercised.
-- **Step 3 scoping started (2026-10-30, session 5), still blocked.**
+- **Step 3 scoping in progress (2026-10-30, sessions 5-6) —
+  dimensional blocker cleared, two architecture questions remain.**
   Chose the design/3D agent's first task: a mounting bracket for an
   SG90 micro servo (specific part: "Beffkkip 10Pcs SG90", Amazon ASIN
   B08KY49SFX). Wrote `component_reference/sg90_servo.md` (mechanical
   analog of `hardware_reference/*.md`) and
   `docs/design-agent-first-task.md` (scoping notes, not yet a spec).
-  **Confirmed the blocker is real, not assumed:** checked multiple
-  public sources for SG90 dimensions — they disagree with each other
-  by up to ~4mm on overall body height, and none of them give the one
-  number a bracket actually needs most (mounting-tab hole diameter
-  and hole-to-hole spacing). One datasheet PDF has a real dimensioned
-  drawing with the right numbers, but they're unlabeled after text
-  extraction and the file isn't downloadable from this environment —
-  so rather than guess which unlabeled number is which, the correct
-  move was to stop and require a real caliper measurement of the
-  actual physical part, same discipline as the coder agent's
-  hardware-grounding rule, one level up. Defaults picked for now
-  (stated as defaults, not firm requirements — user had no
-  preference): FDM 3D-printed output, generic flat-panel mount target.
-- Next step: get caliper measurements of the physical servo (see
-  `component_reference/sg90_servo.md`'s 5-item measurement list) —
-  this is the actual blocker on everything else in step 3. Once that
-  file is filled in, resolve the two remaining open design questions
-  in `docs/design-agent-first-task.md` (output format — likely an
-  OpenSCAD/CadQuery parametric script over a hand-drawn file; and a
-  compile-check equivalent for mechanical designs) before writing the
-  design agent's actual spec/system prompt. Separately, opportunistically
-  confirm the license-escalation fix (rule 7 in `system_prompt.md`)
-  actually fires correctly the next time any coder-agent spec
-  exercises an external library.
+  Session 5 confirmed the dimensional gap was real (checked multiple
+  public SG90 sources — up to ~4mm disagreement on body height, no
+  reliable mounting-tab hole spec anywhere). Session 6 closed it: the
+  user supplied the exact ordered part's own dimension diagram
+  (footprint 31.8x12.5mm, hole-to-hole spacing 22.4mm) and confirmed
+  the mounting screw is M3. `component_reference/sg90_servo.md` is now
+  "GROUNDED FOR A FIRST DRAFT" — a design agent could draft a
+  bracket's footprint and hole layout from it. Only tab thickness
+  (affects screw length, not hole layout) is still unmeasured, and it
+  doesn't block drafting. Defaults picked earlier, still in force
+  (stated as defaults, not firm requirements): FDM 3D-printed output,
+  generic flat-panel mount target.
+- Next step: the blocker is no longer physical data — it's the two
+  open architecture questions in `docs/design-agent-first-task.md`:
+  (1) output file format (likely an OpenSCAD/CadQuery parametric
+  script over a hand-drawn file, not yet confirmed as scriptable
+  headlessly) and (2) a compile-check equivalent for mechanical
+  designs (candidates: dimension-conformance check, mesh-validity/
+  watertight check). Also still open: whether this task needs an
+  LLM-based agent at all vs. a plain parametric script. Resolve these
+  before writing `agent/design_agent.py` or its system prompt.
+  Separately, opportunistically confirm the license-escalation fix
+  (rule 7 in `agent/system_prompt.md`) actually fires correctly the
+  next time any coder-agent spec exercises an external library.
 - Open decisions: see `docs/engineering-department-notes.md`'s "Open
   questions" section (operations department placement, per-department
   spend thresholds, when to build a literal orchestrator agent).

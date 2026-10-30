@@ -7,71 +7,90 @@ arduino_uno.md` grounds the coder agent's pin/voltage claims. Keep it
 factual and sourced — this is what prevents dimension hallucination
 for mechanical parts, same principle as the electronics side.
 
-## Status: INCOMPLETE — do not use to ground a design agent yet
-The one measurement a bracket design actually needs most — the
-mounting tab hole diameter and hole-to-hole spacing — is not reliably
-available from any public source checked so far (2026-10-30). See
-"What's missing" below. **A design agent must not generate a bracket
-against this file until that section is filled in from a real
-measurement.**
+## Status: GROUNDED FOR A FIRST DRAFT — tab thickness still open
+Envelope, hole spacing, and now hole diameter are sourced (product
+diagram + user confirmation). Remaining gap is tab thickness, which
+affects screw length but not hole layout. **A design agent can draft
+a full bracket (footprint + hole positions + hole diameter) from this
+file now.** See "What's still missing" for the one item worth
+confirming before finalizing for print.
 
 ## Target part
 Specific product in hand/ordered: "Beffkkip 10Pcs SG90 9g Micro Servos"
-(Amazon ASIN B08KY49SFX) — a generic SG90-labeled clone, not a single
-standardized manufacturer part. "SG90" is used across many
-manufacturers' clones with measurable differences between them (see
-below), so treat any number here as specific to this batch, not a
-universal SG90 constant, until re-confirmed against the actual part.
+(Amazon ASIN B08KY49SFX). The dimensions below come from this
+product's own listing diagram (Beffkkip-branded, matches the ordered
+part), not a generic "SG90" aggregate — more trustworthy than the
+cross-manufacturer sources in "Other public sources (superseded)"
+below, which disagreed with each other by up to ~4mm. Still a stock
+product-page diagram, not a hand-measured caliper reading of the
+physical part — treat as good but not gold-standard until confirmed.
 
-## Overall body envelope (approximate, source-inconsistent)
+## Confirmed dimensions (from product dimension diagram, 2026-10-30)
+- **Overall case height:** 32mm (0.98in label in source rounds
+  oddly — read as 32mm / 1.26in per the diagram's own left-side
+  figure)
+- **Case width** (side view, consistent across two panels of the
+  diagram): 12.5mm
+- **Mounting tab hole-to-hole spacing** (center-to-center, long
+  axis): **22.4mm** — this is the number that blocked bracket design;
+  not available from any public source checked earlier.
+- **Overall footprint length** (tab tip to tab tip, long axis):
+  31.8mm
+- Two sub-height figures on the diagram (18mm and 25mm) split the
+  32mm total between the narrow upper gearbox housing and the main
+  body, but which label belongs to which section isn't fully certain
+  from the image alone. Doesn't block the bracket (footprint + hole
+  spacing are what matter for mounting); worth a 10-second caliper
+  check if the servo is in hand anyway.
+
+## Mounting tab hole diameter: M3 (user-confirmed, 2026-10-30)
+The included mounting screw is M3. Checked public sources first
+before accepting this (an
+[Arduino forum thread](https://forum.arduino.cc/t/servo-arm-screw-mount-size/696481)
+on this exact question had posters disagreeing from "just under 2mm"
+to "M3," and conflated horn screws with tab screws — not usable on
+its own) — the user directly confirmed M3 for this part, which is a
+better source than scattered forum guesses about a different/unknown
+clone. Derived clearance-hole sizing for the bracket's own mating
+holes (standard practice, not a measurement): a through-hole sized
+for M3 clearance is typically ~3.2-3.4mm; confirm against the actual
+screw if a snug/self-tapping fit is wanted instead of a clearance fit.
+The servo's own tab hole diameter itself (as opposed to the bracket's
+mating hole) hasn't been separately measured, but M3 is now the
+working assumption for sizing both sides of the joint.
+
+## What's still missing
+- **Tab thickness** — not on the diagram, not yet measured. Affects
+  screw length selection, not hole layout — doesn't block a first
+  draft.
+
+## How to fill in what's left
+1. Tab thickness (quick caliper reading once the part is in hand)
+2. (Optional, not blocking) confirm which of 18mm/25mm is which
+   sub-height, and the output shaft/horn height from the base
+
+## Other public sources (superseded by the diagram above for L/W/H
+and now superseded entirely for hole spacing — kept for the
+clone-variance context, not as the active reference)
 | Source | L | W | H | Weight |
 |---|---|---|---|---|
 | [TAMS Uni-Hamburg SG90 datasheet](https://tams.informatik.uni-hamburg.de/lehre/2023ss/vorlesung/es/doc/sg90.pdf) | 22.2mm | 11.8mm | 31mm | 9g |
 | [TowerPro SG90 listing](https://skycraftsurplus.com/products/towerpro-sg90-micro-servo-arduino-compatible.html) | 23.1mm | 12.2mm | 29.0mm | 9.0g |
 | T-Pro Mini SG-90 listing | 22.0mm | 11.5mm | 27mm | 9g (10.6g w/ wire+connector) |
 
-Up to ~4mm disagreement on height between sources labeled identically
-— this is real clone-to-clone variance, not reading error. **Do not
-treat any single row above as ground truth for the actual part in
-hand.** A bracket design should either use the real measured part
-(preferred) or build in enough clearance/tolerance to absorb this
-spread if forced to rely on a published figure.
-
-## What's missing (the actual blocker)
-- **Mounting tab hole diameter** — not found in any source checked.
-- **Mounting tab hole-to-hole spacing** (center-to-center, same side)
-  — not found. This is the single most important number for a
-  bracket; without it, hole positions in a design would be guessed,
-  which is exactly what this project's grounding rule exists to
-  prevent.
-- **Tab thickness** — not found.
-- **Output shaft/horn height from the case base** — not found.
-  [One datasheet PDF](https://www.kjell.com/globalassets/mediaassets/701916_87897_datasheet_en.pdf)
-  has a real dimensioned drawing with unlabeled numbers (22.8, 32.0,
-  26.7, 15.6, 12.4, 15.8, 14.2, 7.7, 2.54mm) that likely include this,
-  but the labels didn't survive text extraction and the file couldn't
-  be downloaded to inspect visually from this environment (host not
-  reachable). Don't assign these numbers to features by guessing which
-  is which.
-
-## How to fill this in (next action, blocks any design-agent work)
-Measure the actual physical part (the Beffkkip-batch servo once it's
-in hand) with calipers:
-1. Body L x W x H (case only, excluding horn/wire)
-2. Mounting tab hole diameter
-3. Hole-to-hole spacing (center-to-center, same side)
-4. Tab thickness
-5. Output shaft height from the case base, to where the horn spline
-   sits
-
-Record each with the tool used (calipers vs. estimated) and date
-measured. Once filled in, this file becomes the actual grounding
-source for the design agent's first bracket spec — same role
-`hardware_reference/*.md` plays for the coder agent.
+Up to ~4mm disagreement between these on height — real clone-to-clone
+variance, part of why the diagram above (specific to the ordered
+part) is now the preferred source instead.
 
 ## Provenance
-- Sources consulted: see links above (2026-10-30).
+- Confirmed dimensions: product's own dimension diagram, supplied by
+  the user, 2026-10-30. Specific to the Beffkkip-branded SG90 listing
+  (Amazon ASIN B08KY49SFX). Source image saved at
+  `component_reference/images/sg90_beffkkip_dimensions.png`.
+- Mounting screw size (M3): confirmed directly by the user, 2026-10-30.
+- Other sources consulted (superseded): see links above (2026-10-30).
 - No CAD model, STEP, or STL file of this part exists anywhere in
   this project yet.
 - No license/attribution concerns apply to taking your own physical
-  measurements of a part you own.
+  measurements of a part you own, or to reading dimensions off its
+  own product listing.
