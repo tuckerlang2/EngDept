@@ -36,6 +36,25 @@ these aren't being relaxed because the architecture changed.)
 - The agent's final output must end with a structured STATUS line
   (PASS / ESCALATE / FAIL_RETRY_EXCEEDED) so a calling orchestrator
   can branch on it without parsing prose. See `agent/system_prompt.md`.
+- **Prefer adapting existing, proven public designs and code over
+  building from scratch**, when a reasonable fit exists. Applies
+  especially to flight-control/stabilization firmware (prefer
+  established, flight-proven projects like ArduPilot/PX4/Betaflight
+  over a custom-written control loop — this is a safety argument, not
+  just an efficiency one) and to mechanical frame/structural starting
+  points (use an existing design's geometry as a baseline, modify to
+  fit actual components/budget/payload — not a finished product to
+  ship unmodified).
+- **Mandatory before incorporating anything external: check and record
+  its license.** Escalate (don't silently proceed) if a design or
+  codebase is non-commercial-licensed (e.g. CC BY-NC) or copyleft in a
+  way that could force disclosure of derivative work (e.g. GPL) when
+  the end use is a commercial product. This is a real legal/IP risk,
+  equivalent in severity to the physical/spend/cost escalation
+  triggers elsewhere in this list, not a formality.
+- Document provenance for anything adapted: source, license, and what
+  was modified. Part of the project's "professionally documented"
+  goal, and needed for any future legal/IP review.
 
 ## Project structure
 See README.md's "Layout" section — kept there instead of duplicated
