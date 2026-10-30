@@ -229,3 +229,65 @@ Append a new entry every session. Don't delete old entries.
   before writing that agent's spec). Opportunistically confirm rule 7
   fires correctly the next time any spec pulls in an external
   library, rather than assuming the prompt edit alone is proof.
+
+---
+
+## 2026-10-30 — Session 5: design/3D agent — chose first task, confirmed real blocker
+- Chose the design/3D agent's first task: a mounting bracket for an
+  SG90 micro servo, the specific part in a 10-pack the user has/is
+  getting ("Beffkkip 10Pcs SG90 9g Micro Servos", Amazon ASIN
+  B08KY49SFX). Reasoning: cheap, common, will recur in this project's
+  eventual drone/robotics work, and simple enough (one part, one
+  mounting interface) to prove the architecture the same way PIR+LED
+  was a deliberately simple first case for the coder agent.
+- **Did not take the "no existing CAD model/measured envelope"
+  blocker on faith — checked it.** Searched for and read multiple
+  public SG90 sources:
+  - [TAMS Uni-Hamburg SG90 datasheet](https://tams.informatik.uni-hamburg.de/lehre/2023ss/vorlesung/es/doc/sg90.pdf): 22.2 x 11.8 x 31mm, 9g
+  - [TowerPro SG90 listing](https://skycraftsurplus.com/products/towerpro-sg90-micro-servo-arduino-compatible.html): 23.1 x 12.2 x 29.0mm, 9.0g
+  - A T-Pro Mini SG-90 listing: 22.0 x 11.5 x 27mm, 9g
+  - [ProtoSupplies SG90/MG90 bracket listing](https://protosupplies.com/product/sg90-mg90-servo-bracket/): gives their own bracket's cutout size, not the servo's own tab dimensions
+  - A [kjell.com datasheet PDF](https://www.kjell.com/globalassets/mediaassets/701916_87897_datasheet_en.pdf) that does have a real dimensioned drawing (confirmed: "Dimensions are in millimeters," with numbers 22.8, 32.0, 26.7, 15.6, 12.4, 15.8, 14.2, 7.7, 2.54 present) -- but the labels didn't survive PDF text extraction, and the file couldn't be downloaded from this sandboxed environment to inspect visually (host not reachable through the egress proxy).
+  - Result: **confirmed real disagreement between sources** (up to
+    ~4mm on overall height) and **confirmed the mounting-tab hole
+    diameter/spacing — the number a bracket design needs most — isn't
+    reliably available from any source checked.** This is not a
+    theoretical gap; it's a verified one.
+  - Correct call given that: don't guess which unlabeled drawing
+    number is the hole spacing. Require an actual caliper measurement
+    of the physical part instead. Same principle as the coder agent's
+    hardware-grounding rule (never invent a pin/voltage from memory),
+    one level up, applied to a mechanical fact instead of an
+    electrical one.
+- Wrote `component_reference/sg90_servo.md` — mechanical analog of
+  `hardware_reference/*.md`. Holds the body-envelope source table,
+  flags the missing tab/hole/horn numbers explicitly, and lists the
+  exact 5 measurements needed (body L/W/H, tab hole diameter,
+  hole-to-hole spacing, tab thickness, horn height from base) with
+  the instruction not to use this file to ground a design agent until
+  those are filled in.
+- Wrote `docs/design-agent-first-task.md` — scoping notes (explicitly
+  not yet a spec, mirroring but distinct from
+  `docs/primary-coder-agent-spec.md`'s format). Records: the chosen
+  task and why; two defaults picked since the user had no preference
+  (FDM 3D-printed output; generic flat-panel mount target for this
+  first case, since no specific frame/chassis exists yet); three
+  things still undecided even after the measurement blocker clears
+  (output file format -- likely an OpenSCAD/CadQuery parametric
+  script, not a hand-drawn file, to keep with this project's
+  code-not-binary instinct, but not yet confirmed as scriptable
+  headlessly; a compile-check equivalent for mechanical designs --
+  likely dimension-conformance + mesh-validity checks, not yet
+  designed; an FDM hole-tolerance policy, since printed holes need to
+  be oversized slightly to actually fit screws).
+- Also flagged but not resolved: whether this task even needs an
+  LLM-based agent at all, or whether a simple parametric script
+  suffices for a first bracket -- worth asking explicitly before
+  building an Agent-SDK-based design agent by default just because
+  that's the pattern the coder agent used.
+- Next step: measure the physical servo once it's in hand (see the
+  5-item list in `component_reference/sg90_servo.md`) and fill that
+  file in. That's the actual blocker on everything else in step 3 --
+  the output-format and verification-gate questions in
+  `docs/design-agent-first-task.md` are real but secondary; don't
+  spend more time on them until the measurement exists.
