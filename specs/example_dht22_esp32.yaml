@@ -1,0 +1,31 @@
+# Second test case for the rebuilt agent -- deliberately NOT a re-run of
+# the PIR+LED case. Different board (ESP32 instead of Arduino Uno),
+# different component class (a timed one-wire digital sensor instead of
+# a simple active-high digital input), different toolchain core
+# (arduino:avr is preinstalled by default; esp32:esp32 is not, per
+# config/boards.yaml's core_install_note -- so this also exercises a
+# board whose core a run environment won't already have unless someone
+# installed it on purpose).
+#
+# A pass here is the real second data point: it tells you whether the
+# rebuild generalizes across boards/components, not just whether it can
+# replay the one case it was built against.
+board: esp32_devkitc_v4
+goal: >
+  Read temperature and humidity from a DHT22 sensor every 5 seconds and
+  print the readings over serial (115200 baud). No actuation, no
+  networking -- just periodic sensing and serial output.
+components:
+  - name: DHT22
+    connection: digital
+    notes: >
+      One-wire digital temperature/humidity sensor (not simple
+      active-high/low -- it uses a timed single-wire protocol and
+      needs an external pull-up resistor on its data line per typical
+      datasheets). Runs on 3.3V-5V; wire to the ESP32's 3.3V rail per
+      the board's logic-level note, not 5V. Requires a library
+      (e.g. Adafruit DHT or DHTesp) -- flag if that's unavailable
+      rather than hand-rolling the one-wire timing.
+constraints:
+  - "no WiFi/networking -- serial output only"
+  - "no actuators -- sensing and reporting only"
