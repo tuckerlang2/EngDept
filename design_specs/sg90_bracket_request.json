@@ -1,0 +1,27 @@
+{
+  "doc_type": "design_request",
+  "schema_version": 1,
+  "project_name": "SG90 servo mounting bracket",
+  "description": "A flat plate that holds one SG90 micro servo (Beffkkip-branded, Amazon ASIN B08KY49SFX) by its own mounting tabs, and attaches that servo to a flat panel.",
+  "application": "Generic flat-panel mount, FDM-printed, one-off prototype for the Engineering Department project's eventual robotics/drone work. No specific chassis exists yet to mount to.",
+  "dimensions": [
+    {"label": "Servo tab hole spacing (center-to-center)", "value": "22.4", "unit": "mm", "tolerance": ""},
+    {"label": "Servo footprint length", "value": "31.8", "unit": "mm", "tolerance": ""},
+    {"label": "Servo case width", "value": "12.5", "unit": "mm", "tolerance": ""},
+    {"label": "Plate overall width (as built)", "value": "44", "unit": "mm", "tolerance": ""},
+    {"label": "Plate overall height (as built)", "value": "24", "unit": "mm", "tolerance": ""},
+    {"label": "Plate thickness (as built)", "value": "3", "unit": "mm", "tolerance": ""}
+  ],
+  "tolerance_policy": "M3 clearance holes sized at 3.4mm (standard-practice sizing, not FDM-tolerance-adjusted). No FDM hole-tolerance offset applied yet -- flagged as open in docs/design-agent-first-task.md.",
+  "manufacturing_method": "FDM 3D print",
+  "budget": "Not specified by the user for this bracket -- defaulted. Should be a required field going forward.",
+  "electronics_components": [
+    {"name": "SG90 micro servo (Beffkkip, ASIN B08KY49SFX)", "note": "Grounded in component_reference/sg90_servo.md. Mounting screw confirmed M3 by the user directly."}
+  ],
+  "reference_image": "component_reference/images/sg90_beffkkip_dimensions.png (product dimension diagram, supplied by the user) -- this is the artifact that actually unblocked the design; see component_reference/sg90_servo.md provenance.",
+  "reference_image_data": null,
+  "notes": "This JSON is a RETROACTIVE worked example, back-filled after the fact from Sessions 5-7's real work (the dimensional grounding, the M3 confirmation, and the live Fusion build) -- the intake form did not exist yet when the actual bracket was built. It exists to show the design_request schema with real data, and to flag that 'budget' was never actually asked for a design the form would now require it on.",
+  "status": "built_and_exported",
+  "built_output": "design/sg90_bracket_v1.f3d",
+  "built_provenance": "design/sg90_bracket_v1_PROVENANCE.md"
+}

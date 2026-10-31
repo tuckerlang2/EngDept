@@ -101,6 +101,16 @@ scoping output of this doc)
   a Python CAD library's validity checks, etc.) — needs research once
   the output-format decision above is made.
 
+## Intake side — RESOLVED in a separate doc (session 7, same day)
+How a design request even gets specified (required fields, optional
+reference image, JSON output) is now its own doc:
+`docs/design-intake-form-spec.md`, with a working form artifact and a
+worked example (`design_specs/sg90_bracket_request.json`, back-filled
+from this bracket). That doc also defines a two-phase workflow —
+a cheap, no-Fusion-connector "confirmation sketch" step before any
+live CAD session — which is the right place for the self-check idea
+below to eventually live, once it's real.
+
 ## Next action
 Output format is resolved (session 7). What's left before a real spec:
 1. Close the verification-gate gap above — get a real numeric
@@ -113,5 +123,9 @@ Output format is resolved (session 7). What's left before a real spec:
    3 real API errors by hand. Turning that into either a saved,
    re-runnable script or an actual `agent/design_agent.py` (with a
    system prompt analogous to the coder agent's) is unstarted.
+4. Build the actual Phase-0 "confirmation sketch" step described in
+   `docs/design-intake-form-spec.md` — demonstrated manually once this
+   session (the SVG sent to the user for this same bracket), not yet
+   a scripted, repeatable step with its own output format.
 Tab thickness (the one remaining physical gap, see
 `component_reference/sg90_servo.md`) still doesn't block any of this.

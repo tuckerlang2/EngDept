@@ -437,3 +437,61 @@ isn't an ongoing guarantee). Next step: close the self-check gap,
 decide the FDM hole-tolerance policy (still open from Session 5-6),
 then decide LLM-agent-vs-plain-script before writing
 `agent/design_agent.py`.
+
+## Session 7 continued (2026-10-31) — design intake form + two-phase
+workflow (motivated by the user's own token-efficiency concern)
+
+User's real problem, stated directly: translating human
+measurements/intent into something an LLM design agent won't
+misread is hard, they're not confident in their own ability to
+explain designs precisely, and opening the live Fusion MCP connector
+is assumed to be token/attention-expensive, so they want to avoid
+doing that speculatively.
+
+Built a structured intake form as a fillable artifact
+(https://claude.ai/artifact/AT84wE1oMH41rXExXD9UBj) that exports a
+JSON `design_request` document -- the same role `specs/*.yaml` plays
+for the coder agent. Required fields: project name, general
+description, application/context, at least one hard dimension,
+manufacturing method, budget. Explicitly optional and non-blocking,
+per direct instruction: a reference photo/drawing field -- encouraged
+in the form's own copy (this session's own SG90 bracket work is the
+proof: the product dimension diagram, not prose, is what actually
+closed that dimensional blocker) but never required.
+
+Documented the form and, more importantly, the workflow it enables in
+`docs/design-intake-form-spec.md`:
+- **Phase 0 (cheap, no live Fusion connector):** design agent reads
+  the filled JSON, grounds components against
+  `component_reference/*.md`, and sketches back what it understood
+  (a dimensioned diagram plus a short restatement) for the user to
+  confirm or correct -- exactly the kind of SVG sketch sent to the
+  user earlier this session for the already-built SG90 bracket,
+  generated from reasoning alone with zero live CAD tool calls.
+- **Phase 1 (live build):** only happens after the user confirms
+  Phase 0. This is the actual fix for the stated concern -- a
+  misunderstood request gets caught before any live, presumably
+  expensive Fusion session, not after.
+
+Back-filled a worked example, `design_specs/sg90_bracket_request.json`,
+from the real SG90 bracket data (dimensions, M3 confirmation, output
+file) -- explicitly marked as retroactive, since the form didn't
+exist when that bracket was actually built. Doing this surfaced a
+real gap: the bracket build never had a stated budget, which the new
+form would now require -- noted directly in that file's `notes`
+field rather than silently backfilling a number.
+
+### What's still not real yet
+- Nothing in the repo consumes `design_specs/*.json` automatically --
+  no `design_agent.py`, no schema validator analogous to
+  `agent/spec_schema.py`.
+- Phase 0 ("confirmation sketch before live Fusion") is a described
+  workflow and one informal demonstration, not a scripted, repeatable
+  step with a defined output format or an escalation rule for when
+  the user's correction and the agent's understanding still don't
+  converge.
+- The form's own required-field enforcement is JS-only, not backed by
+  anything a design agent could re-validate.
+
+Updated `CLAUDE.md` current state and `docs/design-agent-first-task.md`
+accordingly.

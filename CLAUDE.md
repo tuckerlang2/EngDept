@@ -153,11 +153,29 @@ here to avoid the two going out of sync.
   it into either is still unstarted, so step 3 is not yet "proven"
   the way steps 1-2 are (one build, not re-verified, same caveat this
   project applies everywhere else).
+- **Design intake form built (2026-10-31, session 7, same day).** The
+  user's own concrete problem: translating human measurements/intent
+  into something a design agent won't misread is hard, and opening the
+  live Fusion MCP connector is expensive, so speculative live sessions
+  should be avoided. Built a structured intake form (fillable artifact
+  https://claude.ai/artifact/AT84wE1oMH41rXExXD9UBj, exports JSON) —
+  required fields (name, description, application, dimensions,
+  manufacturing method, budget), optional ones (tolerances, electronics
+  components, reference image — explicitly never blocking). Documented
+  in `docs/design-intake-form-spec.md`, with a worked example
+  (`design_specs/sg90_bracket_request.json`, back-filled from the real
+  bracket). That doc defines a two-phase workflow: Phase 0 is a cheap,
+  no-Fusion-connector confirmation sketch (demonstrated once this
+  session, informally, as the SVG sent to the user) so a
+  misunderstood request gets caught before any live CAD session;
+  Phase 1 is the live build, only after the user confirms Phase 0.
+  Phase 0 is not yet a scripted/repeatable step.
 - Next step: close the self-check gap (get a real numeric dimension
   check working, not just visual), decide the FDM hole-tolerance
-  policy (still open), and decide whether the design agent should be
-  LLM-based or a plain repeatable script before writing
-  `agent/design_agent.py` or its system prompt. Separately,
+  policy (still open), build the actual Phase-0 confirmation-sketch
+  step (currently manual/informal), and decide whether the design
+  agent should be LLM-based or a plain repeatable script before
+  writing `agent/design_agent.py` or its system prompt. Separately,
   opportunistically confirm the license-escalation fix (rule 7 in
   `agent/system_prompt.md`) actually fires correctly the next time any
   coder-agent spec exercises an external library.
