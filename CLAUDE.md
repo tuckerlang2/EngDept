@@ -136,11 +136,12 @@ here to avoid the two going out of sync.
   see PROGRESS.md for the full sequence). Once connected, built a
   44x24x3mm plate (2 servo holes at 22.4mm spacing + 4 corner
   panel-mount holes, all M3-clearance) via real, doc-verified Fusion
-  Python API calls (not memory) and exported it as
-  `design/sg90_bracket_v1.f3d`. Full build detail, what was and
-  wasn't verified, and the real API facts learned, are in
-  `design/sg90_bracket_v1_PROVENANCE.md` and
-  `docs/design-agent-first-task.md`.
+  Python API calls (not memory) and exported it. **Since promoted
+  into the local library** (see below) at
+  `library/projects/sg90-servo-bracket/sg90_bracket_v1.f3d`. Full
+  build detail, what was and wasn't verified, and the real API facts
+  learned, are in `library/projects/sg90-servo-bracket/PROVENANCE.md`
+  and `docs/design-agent-first-task.md`.
   **Real gap, same shape as the license-check gap above: the
   numeric self-check didn't actually work.** The build script wrote
   an expected-vs-actual bounding-box check to a `result` variable, but

@@ -11,9 +11,10 @@ agent should eventually look like once this doc's blocker clears.
 session 7) — output format resolved, verification gate still open
 A first bracket (44x24x3mm plate, 2 servo holes at 22.4mm spacing + 4
 corner panel-mount holes, all M3-clearance) was built live and
-exported as `.f3d` — see `design/sg90_bracket_v1.f3d` and
-`design/sg90_bracket_v1_PROVENANCE.md` for the full detail, dimensions,
-and what was and wasn't verified. This resolves the output-format
+exported as `.f3d` — now organized at
+`library/projects/sg90-servo-bracket/` (see `docs/library-spec.md`),
+containing the output file, `PROVENANCE.md` (full detail, dimensions,
+what was/wasn't verified) and `metadata.yaml`. This resolves the output-format
 question (below) but this is **one interactive build, not a
 repeatable agent** — see "Architecture conclusion" and "Still open"
 below before treating step 3 as proven the way steps 1-2 are.

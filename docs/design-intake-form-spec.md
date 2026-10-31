@@ -67,7 +67,11 @@ fields: `project_name`, `description`, `application`, `dimensions`
 for a real worked example, back-filled from this session's actual
 SG90 bracket build (the data was real; the form didn't exist yet when
 that bracket was built, so this is a retroactive example, not a
-replay of an actual form submission).
+replay of an actual form submission). That example now lives at
+`library/projects/sg90-servo-bracket/design_request.json` — see
+`docs/library-spec.md` for why: once a design request produces a real
+project, it's promoted out of the `design_specs/` inbox into its own
+library folder alongside the project's output and provenance.
 
 ## The workflow this form is part of (the actual point of this doc)
 This directly answers the token-efficiency concern that motivated the

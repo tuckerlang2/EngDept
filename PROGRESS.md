@@ -495,3 +495,50 @@ field rather than silently backfilling a number.
 
 Updated `CLAUDE.md` current state and `docs/design-agent-first-task.md`
 accordingly.
+
+## Session 7 continued again (2026-10-31) — local project library
+
+User wants a durable local library: one folder per completed/in-
+progress project (so a project can actually be referenced, rebuilt,
+or improved later instead of its files being scattered), plus a
+separate place to cache externally-sourced electronics/mechanical
+designs the agent is asked to go find -- with a hard requirement that
+even when the actual file can't legally be cached, a link or the
+search query that found it gets saved so it's findable again.
+
+Designed and documented in `docs/library-spec.md`:
+- `library/projects/<slug>/` -- one folder per project:
+  `design_request.json`, the output file(s), `PROVENANCE.md`, and a
+  `metadata.yaml` (slug, status, tags, summary, outputs,
+  related_components, open_items) for lightweight findability without
+  building a database ahead of what's proven.
+- `library/reference/<slug>/` -- externally-sourced designs, each
+  with `source_url`, `search_terms_used` (the actual query, so it's
+  findable even if the link dies), `license` + `license_confirmed`
+  (mandatory -- reuses the existing non-commercial/copyleft escalation
+  rule directly), and `local_file` (the cached design, or null +
+  reason when the license doesn't permit caching it). No entries yet
+  -- this is a documented convention, not yet exercised.
+- `design_specs/` is now explicitly the inbox (freshly generated
+  intake-form JSON, not yet a real project); a project gets promoted
+  out of the inbox into `library/projects/` once there's real output
+  worth keeping. No automated promotion tool -- manual `git mv` each
+  time, same as everything else here until it's proven.
+
+Promoted the SG90 bracket as the first (retroactive) example:
+`git mv`'d `design/sg90_bracket_v1.f3d`,
+`design/sg90_bracket_v1_PROVENANCE.md` (-> `PROVENANCE.md`), and
+`design_specs/sg90_bracket_request.json` (-> `design_request.json`)
+into `library/projects/sg90-servo-bracket/`, added its
+`metadata.yaml`. Updated path references in `CLAUDE.md`,
+`docs/design-agent-first-task.md`, and
+`docs/design-intake-form-spec.md` accordingly. Left PROGRESS.md's own
+earlier entries pointing at the old paths unchanged -- this is an
+append-only log of what happened at the time, not something to
+rewrite when a layout changes later.
+
+### What's still not real
+`library/reference/` has zero entries -- the actual test of that
+half of this design is the next time the agent is asked to go find
+an existing drone-frame or electronics design, not before. No search/
+catalog tool beyond `ls`/`grep` across `library/`.

@@ -1,0 +1,27 @@
+slug: sg90-servo-bracket
+project_name: SG90 servo mounting bracket
+status: built
+created: "2026-10-30"
+last_updated: "2026-10-31"
+tags: [bracket, servo, sg90, fdm, mechanical, panel-mount]
+summary: >
+  Flat FDM-printable plate holding one SG90 micro servo by its own
+  mounting tabs, attached to a generic flat panel via 4 corner holes.
+  First real output of the design-agent track; built live via the
+  Fusion 360 MCP connector.
+design_request: design_request.json
+outputs:
+  - sg90_bracket_v1.f3d
+provenance: PROVENANCE.md
+related_components:
+  - component_reference/sg90_servo.md
+open_items:
+  - Numeric dimension self-check not confirmed (visual + file-size
+    confirmation only) -- see PROVENANCE.md and
+    docs/design-agent-first-task.md item 3.
+  - No FDM hole-tolerance offset applied to the 3.4mm clearance holes.
+  - Tab thickness on the servo itself still unmeasured (doesn't block
+    this bracket's hole layout).
+  - Budget was never actually specified for this project -- noted in
+    design_request.json; the intake form now requires this field going
+    forward.
