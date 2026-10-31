@@ -7,18 +7,16 @@ buildable spec — see "Status" below. Compare
 `docs/primary-coder-agent-spec.md` for what a completed spec for this
 agent should eventually look like once this doc's blocker clears.
 
-## Status: dimensionally grounded for a first draft; two design
-questions still open
-`component_reference/sg90_servo.md` now has what a first bracket
-draft needs — footprint, hole spacing, and hole diameter — sourced
-from the product's own dimension diagram plus direct user
-confirmation on screw size, not from the inconsistent public sources
-checked earlier. The one still-open physical item (tab thickness)
-affects screw-length selection, not the bracket's hole layout, so it
-doesn't block drafting. **What still blocks writing
-`agent/design_agent.py` or a design-equivalent of `system_prompt.md`
-is not physical data anymore — it's the two open architecture
-questions below** (output format, verification-gate equivalent).
+## Status: first draft actually built live in Fusion (2026-10-31,
+session 7) — output format resolved, verification gate still open
+A first bracket (44x24x3mm plate, 2 servo holes at 22.4mm spacing + 4
+corner panel-mount holes, all M3-clearance) was built live and
+exported as `.f3d` — see `design/sg90_bracket_v1.f3d` and
+`design/sg90_bracket_v1_PROVENANCE.md` for the full detail, dimensions,
+and what was and wasn't verified. This resolves the output-format
+question (below) but this is **one interactive build, not a
+repeatable agent** — see "Architecture conclusion" and "Still open"
+below before treating step 3 as proven the way steps 1-2 are.
 
 ## Chosen first task
 A mounting bracket for an SG90 micro servo (the specific part in
@@ -55,25 +53,35 @@ scoping output of this doc)
    `component_reference/sg90_servo.md`'s missing fields (tab hole
    diameter, hole spacing, tab thickness, horn height). This is the
    hard blocker; nothing else below matters until this exists.
-2. **An output format decision for the design agent's generated
-   file** — likely an OpenSCAD or CadQuery parametric script (text,
-   diffable, matches this project's "code, not binary blobs"
-   instinct from the coder agent) that generates an STL, rather than
-   a hand-drawn STEP file. Not yet decided for certain — needs a
-   short investigation into what's actually scriptable headlessly
-   (mirrors the coder agent's own "verify the current API against
-   real docs, not memory" discipline from Session 1).
-3. **A verification-gate equivalent to `compile_check`** — the
-   non-negotiable "no agent self-certifies" rule applies here too.
-   For code, compile-check is unambiguous (it compiles or it
-   doesn't). For a mechanical design, the equivalent check is less
-   obvious — candidates: a dimension-conformance check (does the
-   generated model's hole spacing actually match the component
-   reference file, programmatically, not just by the agent's say-so),
-   a mesh-validity check (watertight/manifold, so it's actually
-   printable), and possibly a basic interference/clearance check.
-   Needs its own short design pass once (1) is unblocked — don't
-   invent this in the abstract before there's a real model to check.
+2. **Output format — RESOLVED (session 7), with a structural caveat.**
+   The user does Fusion 360 CAD work and explicitly wanted a `.f3d`
+   file, not a parametric script requiring manual execution. Confirmed
+   Fusion 360 has no headless/batch mode (checked, not assumed) — the
+   only true-headless Autodesk option is the separate, billed
+   Forge/APS Design Automation cloud API. So `.f3d` output means the
+   design agent (whatever it ends up being) must run as a **live
+   session with Fusion open and its MCP connector connected**, driving
+   the real Fusion Python API via `fusion_mcp_execute` — never a
+   cloud-headless component like the coder agent. This is now a fixed
+   architectural fact for this whole department, not an open question.
+3. **A verification-gate equivalent to `compile_check` — STILL OPEN,
+   and now a known real gap, not a hypothetical one.** Session 7's
+   build script wrote a numeric self-check (expected vs. actual
+   bounding box, read back via `boundingBox` on the created body) into
+   a `global result` variable, the same capture convention used
+   earlier for text output — but the MCP tool's response message came
+   back empty both times this was tried (once on the original build,
+   once on the cleanup/export run). The bracket's dimensions are only
+   confirmed **visually** (an isometric screenshot showing the right
+   shape and hole count) and by **file existence/size** (the exported
+   `.f3d` is non-zero), not by an actual re-read numeric check. See
+   `design/sg90_bracket_v1_PROVENANCE.md` for full detail. This is
+   exactly the "no agent self-certifies" rule being violated in
+   practice right now, not just unaddressed in theory — fixing the
+   result-capture path (or finding a different way to read dimensions
+   back out, e.g. a separate read-only script/query rather than
+   trusting the same execute call's message field) is the concrete
+   next step for this item, not abstract design work.
 4. **Tolerance policy for FDM printing** — hole diameters typically
    need to be printed slightly larger than the nominal screw/pin size
    to actually fit (a well-known FDM-specific issue, not something to
@@ -94,10 +102,16 @@ scoping output of this doc)
   the output-format decision above is made.
 
 ## Next action
-Resolve the two open design questions above (output format; a
-compile-check equivalent for mechanical designs) and the "does this
-need to be an LLM agent at all" question — these, not physical
-measurement, are now what's between this doc and a real spec. Tab
-thickness (the one remaining physical gap, see
-`component_reference/sg90_servo.md`) can be measured in parallel; it
-doesn't block this.
+Output format is resolved (session 7). What's left before a real spec:
+1. Close the verification-gate gap above — get a real numeric
+   dimension self-check working, not just visual/file-existence
+   confirmation.
+2. Decide the FDM hole-tolerance policy (item 4 above).
+3. Decide whether this is an LLM-based agent or a plain repeatable
+   script — session 7's build was neither: it was ad-hoc interactive
+   scripting against the live Fusion MCP connector, iterating through
+   3 real API errors by hand. Turning that into either a saved,
+   re-runnable script or an actual `agent/design_agent.py` (with a
+   system prompt analogous to the coder agent's) is unstarted.
+Tab thickness (the one remaining physical gap, see
+`component_reference/sg90_servo.md`) still doesn't block any of this.

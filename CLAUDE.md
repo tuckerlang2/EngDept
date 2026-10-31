@@ -120,18 +120,47 @@ here to avoid the two going out of sync.
   doesn't block drafting. Defaults picked earlier, still in force
   (stated as defaults, not firm requirements): FDM 3D-printed output,
   generic flat-panel mount target.
-- Next step: the blocker is no longer physical data — it's the two
-  open architecture questions in `docs/design-agent-first-task.md`:
-  (1) output file format (likely an OpenSCAD/CadQuery parametric
-  script over a hand-drawn file, not yet confirmed as scriptable
-  headlessly) and (2) a compile-check equivalent for mechanical
-  designs (candidates: dimension-conformance check, mesh-validity/
-  watertight check). Also still open: whether this task needs an
-  LLM-based agent at all vs. a plain parametric script. Resolve these
-  before writing `agent/design_agent.py` or its system prompt.
-  Separately, opportunistically confirm the license-escalation fix
-  (rule 7 in `agent/system_prompt.md`) actually fires correctly the
-  next time any coder-agent spec exercises an external library.
+- **Step 3, first real output (2026-10-31, session 7): a first-draft
+  SG90 bracket was built live in Fusion 360 and exported.** The user
+  wanted native `.f3d` output, which ruled out a headless
+  parametric-script approach — confirmed (not assumed) Fusion 360 has
+  no headless/batch mode; the only true-headless Autodesk path is the
+  separate, billed Forge/APS cloud API. So this had to run as a live
+  session with the user's Fusion 360 open, via the Fusion 360 MCP
+  connector (account Settings → Connectors → "Autodesk Fusion",
+  Desktop type, local port 27182) — a structural fact for this whole
+  department's design agent, not a workaround. Getting that connector
+  actually connected took real troubleshooting this session (root
+  cause never fully pinned down — it started working after the user
+  interacted with its Settings page while Fusion was already open;
+  see PROGRESS.md for the full sequence). Once connected, built a
+  44x24x3mm plate (2 servo holes at 22.4mm spacing + 4 corner
+  panel-mount holes, all M3-clearance) via real, doc-verified Fusion
+  Python API calls (not memory) and exported it as
+  `design/sg90_bracket_v1.f3d`. Full build detail, what was and
+  wasn't verified, and the real API facts learned, are in
+  `design/sg90_bracket_v1_PROVENANCE.md` and
+  `docs/design-agent-first-task.md`.
+  **Real gap, same shape as the license-check gap above: the
+  numeric self-check didn't actually work.** The build script wrote
+  an expected-vs-actual bounding-box check to a `result` variable, but
+  the tool never surfaced it — confirmation is visual (a screenshot)
+  and file-existence only, not a re-read numeric check. That's the
+  "no agent self-certifies" rule not actually being met yet for this
+  agent, not a cosmetic issue — see `design-agent-first-task.md` item
+  3. **Also unresolved:** this was one ad-hoc interactive build, not
+  a repeatable script or an actual `agent/design_agent.py` — turning
+  it into either is still unstarted, so step 3 is not yet "proven"
+  the way steps 1-2 are (one build, not re-verified, same caveat this
+  project applies everywhere else).
+- Next step: close the self-check gap (get a real numeric dimension
+  check working, not just visual), decide the FDM hole-tolerance
+  policy (still open), and decide whether the design agent should be
+  LLM-based or a plain repeatable script before writing
+  `agent/design_agent.py` or its system prompt. Separately,
+  opportunistically confirm the license-escalation fix (rule 7 in
+  `agent/system_prompt.md`) actually fires correctly the next time any
+  coder-agent spec exercises an external library.
 - Open decisions: see `docs/engineering-department-notes.md`'s "Open
   questions" section (operations department placement, per-department
   spend thresholds, when to build a literal orchestrator agent).

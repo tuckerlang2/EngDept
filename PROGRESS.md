@@ -331,3 +331,109 @@ Append a new entry every session. Don't delete old entries.
   question) open design questions. Tab thickness can be measured in
   parallel whenever the physical part is in hand; it's not on the
   critical path anymore.
+
+## Session 7 (2026-10-31) — Fusion 360 MCP connector working; first
+SG90 bracket built and exported live
+
+### Fusion 360 MCP connector troubleshooting
+User asked to just keep Fusion 360 open so its MCP connector would
+work. That alone didn't fix it — the connector (`fusion_mcp_*` tools,
+proxied through the device bridge) stayed in a "failed"/"Connection
+closed" state with Fusion open. Ruled out: `RefreshMcpTools` (only
+manages top-level session MCP servers, not device-bridge-proxied
+local ones); an account-level connector (another Claude session's
+`ListConnectors`/`SearchMcpRegistry` found nothing, consistent with
+this being a Desktop-type connector, not Web-type — confirmed via two
+screenshots of Settings -> Connectors: "Autodesk Fusion," Desktop
+type, enabled, port 27182, 4 tools always-allowed). Root cause never
+definitively pinned down — the connector spontaneously started
+working (state "announced," 4 tools available) right after the user
+viewed/interacted with its Settings detail page while Fusion was
+already open. Treat "keep Fusion open + the connector shows enabled
+in Settings" as necessary but not confirmed sufficient on its own.
+
+### Fusion Python API facts learned (via `fusion_mcp_read`
+queryType "apiDocumentation" -- real doc queries, not memory, same
+grounding discipline as `hardware_reference/*.md` on the electronics
+side)
+- Script entry point must be `def run(context):`; a bare top-level
+  script fails with `NameError: name 'run' is not defined`.
+- `context` passed into `run()` is `None`, not a dict -- can't do
+  `context['result'] = ...`.
+- `Document.name` is settable; the *root component's* `.name` is not
+  (`RuntimeError: 3 : root component name cannot be changed`).
+- `Point3D.create(x, y, z)` coordinates are centimeters (Fusion's
+  internal model-space unit), not mm -- `ValueInput.createByString('3
+  mm')` is the safer way to pass a dimensioned value.
+- A sketch's auto-generated `profiles` collection gives one profile
+  per closed region; a rectangle containing N circles yields N+1
+  profiles (the "rectangle minus all holes" compound one, identified
+  via `profile.profileLoops.count == N+1`, plus N tiny circle-interior
+  ones) -- select the compound one to extrude.
+- `ExportManager.createFusionArchiveExportOptions(path)` +
+  `ExportManager.execute(options)`, off
+  `adsk.fusion.Design.cast(app.activeProduct).exportManager`, is the
+  real API for writing a `.f3d` file to disk.
+- Closing a `Document` via `doc.close(False)` invalidates that Python
+  object immediately -- reading `.name` or any other property on it
+  afterward raises `RuntimeError: 4 : An API Object refers to a
+  deleted Object`. Capture anything needed before closing.
+
+### What was built
+A first-draft SG90 servo mounting bracket, grounded entirely in
+`component_reference/sg90_servo.md`: 44x24x3mm flat plate, two servo
+mounting holes at the confirmed 22.4mm center spacing (3.4mm
+diameter, M3 clearance), four corner panel-mount holes inset 4mm from
+each edge (3.4mm diameter, M3 clearance). Built via 3 rounds of real,
+live script execution against the Fusion MCP connector -- first two
+attempts failed on real errors (missing `run()` wrapper; then the
+root-component-rename error, which cascaded into a second error from
+assuming `context` was a dict), third attempt succeeded. Verified
+visually via an isometric screenshot (plate with exactly 6 holes,
+matching the design) and exported to
+`design/sg90_bracket_v1.f3d` (75,584 bytes, confirmed via direct
+filesystem check -- not zero-byte, not a failed write). Three empty
+"Untitled" documents left behind by the two failed attempts (each
+one's `app.documents.add()` succeeded before the later error) were
+closed without saving as part of the same cleanup script, so they
+don't clutter the user's live Fusion session. Full design detail and
+provenance in `design/sg90_bracket_v1_PROVENANCE.md`.
+
+### Real gap found (same shape as Session 4's license-check gap):
+the self-check didn't actually surface
+The build script wrote an expected-vs-actual bounding-box check
+(converting Fusion's internal cm units to mm) into a `global result`
+string, mirroring the text-output capture convention used earlier
+this project -- but the MCP tool's response `message` field came back
+empty both times this was tried (the original build, and the
+separate cleanup/export run). So the 44x24x3mm dimensions are
+confirmed by screenshot and by the exported file's non-zero size, but
+**not by an actual re-read numeric check**. This is a real instance
+of the "no agent self-certifies" rule not being met in practice for
+this task, not a hypothetical concern -- flagged as item 3 in
+`docs/design-agent-first-task.md`, needs a genuinely different
+verification path (e.g. a separate read-only script/query) before
+step 3 can claim the same rigor steps 1-2 have.
+
+### Architecture conclusion
+Fusion 360 has no headless/batch mode (confirmed via research this
+session -- the only true-headless Autodesk option is the separate,
+billed Forge/APS Design Automation cloud API, a different product).
+A `.f3d`-producing design agent can therefore never be a
+cloud-headless, orchestrator-callable component the way the coder
+agent is -- it must always run as a live session with the user's
+Fusion 360 open and its MCP connector connected. This is now a fixed
+structural fact for this department, recorded in
+`docs/design-agent-first-task.md`, not an open question.
+
+### What's still not done
+This was one ad-hoc interactive build -- iterating by hand through
+real API errors against a live connector -- not a saved, re-runnable
+script, and not an actual `agent/design_agent.py` with its own system
+prompt analogous to the coder agent's. Treat step 3 as "a first real
+output exists," not "proven" -- same standard this project has
+applied to the coder agent itself (one undocumented past success
+isn't an ongoing guarantee). Next step: close the self-check gap,
+decide the FDM hole-tolerance policy (still open from Session 5-6),
+then decide LLM-agent-vs-plain-script before writing
+`agent/design_agent.py`.
