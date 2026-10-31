@@ -115,16 +115,35 @@ until the intake form and the Phase 0/Phase 1 workflow it feeds have
 actually been used and honed, per direct instruction. Revisit this
 section when that happens instead of treating it as a live task.
 
+## Phase 0 update (2026-10-31, later same day) — now live in the form
+The form itself now runs Phase 0: a "Get a quick confirmation sketch"
+button calls the artifact's `sample` capability (a direct,
+memoryless Claude call from inside the page, no new tab, nothing
+saved anywhere) with the filled-in JSON and gets back a plain-English
+restatement plus, where the request describes a flat shape, a
+dimensioned SVG sketch -- rendered in the page immediately. Free to
+re-run as many times as needed before anything is saved.
+
+**Real limitation, stated plainly:** this in-page sketch call has no
+access to this repo -- it cannot read `component_reference/*.md` or
+anything else here, so it grounds only in whatever the JSON itself
+states. That's fine for checking "did I describe what I meant," but
+it is not the same grounding guarantee a full session gives when it
+cross-checks a stated component against an existing
+`component_reference/` doc. Don't treat an in-page sketch confirmation
+as equivalent to the agent actually grounding against this repo's
+reference data -- for that, the JSON still needs to go to a real
+session (this one or another with repo access), same as before.
+
 ## What this doc does not yet resolve
 - The form is a standalone artifact right now — nothing in this repo
   reads its JSON output automatically. There is no `design_agent.py`
   to consume `design_specs/*.json` yet (same gap
   `docs/design-agent-first-task.md` already names).
-- Phase 0's "rough sketch" step has been demonstrated manually once
-  (this session, for the SG90 bracket, informally) but isn't yet a
-  scripted/repeatable step with its own defined output format or
-  escalation rule for when the user's correction and the agent's
-  understanding still don't converge after a round or two.
+- No escalation rule yet for when the user's correction and the
+  sketch still don't converge after a round or two -- right now
+  that's just "keep clicking the button and rereading," not a
+  structured workflow step.
 - The form's "required" fields are enforced by the form's own JS, not
   by anything a design agent could re-validate programmatically yet —
   `design_specs/*.json` has no schema validator the way

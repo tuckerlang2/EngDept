@@ -124,9 +124,10 @@ Output format is resolved (session 7). What's left before a real spec:
    3 real API errors by hand. Turning that into either a saved,
    re-runnable script or an actual `agent/design_agent.py` (with a
    system prompt analogous to the coder agent's) is unstarted.
-4. Build the actual Phase-0 "confirmation sketch" step described in
-   `docs/design-intake-form-spec.md` — demonstrated manually once this
-   session (the SVG sent to the user for this same bracket), not yet
-   a scripted, repeatable step with its own output format.
+4. Phase-0 is now live inside the intake form itself (the form calls
+   the artifact `sample` capability directly) — see the "Phase 0
+   update" note in `docs/design-intake-form-spec.md`, including its
+   real limitation (no access to this repo's `component_reference/`
+   docs from inside the form).
 Tab thickness (the one remaining physical gap, see
 `component_reference/sg90_servo.md`) still doesn't block any of this.
