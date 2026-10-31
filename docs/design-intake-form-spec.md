@@ -100,6 +100,17 @@ the live Fusion MCP connector and actually build. This means a
 misunderstood request gets caught before any live Fusion session,
 which is the actual cost most worth avoiding.
 
+## Future direction — noted, not scheduled
+User wants to eventually run this form as a local app on their own
+PC instead of a claude.ai artifact — once the form/workflow is
+stable, not now. Reasoning not yet captured in detail (likely:
+persistence across sessions, not re-generating/re-publishing the
+artifact each time, maybe wiring it directly to `design_specs/` on
+disk instead of copy-paste). Explicitly deferred — don't start this
+until the intake form and the Phase 0/Phase 1 workflow it feeds have
+actually been used and honed, per direct instruction. Revisit this
+section when that happens instead of treating it as a live task.
+
 ## What this doc does not yet resolve
 - The form is a standalone artifact right now — nothing in this repo
   reads its JSON output automatically. There is no `design_agent.py`
