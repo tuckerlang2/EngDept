@@ -542,3 +542,59 @@ rewrite when a layout changes later.
 half of this design is the next time the agent is asked to go find
 an existing drone-frame or electronics design, not before. No search/
 catalog tool beyond `ls`/`grep` across `library/`.
+
+## Session 8 (2026-11-01) — real second design request: moisture sensor
+bracket, grounding gap found and escalated (not built)
+
+User saved a real new design request to `design_specs/moistureSensorDroneMount`
+via the intake form workflow -- the actual second data point step 3
+needed (not a backfill like the SG90 bracket). Project: a bracket
+holding an Icstation resistive soil moisture sensor (2-probe,
+"Resistive Soil Moisture Meter... Corrosion Resistant Probe") so it
+clips/slides into a channel, eventually mounted to a linear actuator
+on a ground drone to push probes into soil -- explicitly scoped by
+the user to "only building the first bracket now" (not the
+actuator-mount interface yet).
+
+Read the two attached reference images (real Amazon listing
+screenshots for this exact part, not generic photos) by extracting
+them from the request's embedded base64 and viewing them via the
+device bridge. They confirmed real electrical/probe specs (DC
+3.3-12V, probe length 8.8cm, ~5mm probe pitch, driver board
+36x15x6mm) but -- critically -- neither image shows the black sensor
+housing's own width/diameter/cross-section, which is the one
+dimension that actually matters for a slide-in channel or clip. The
+request's own `dimensions` field (bracket width 13mm, length 50mm)
+describes the requester's guess at the bracket, not a measured
+housing fact.
+
+**This is the same shape of gap the SG90 bracket had, and it was
+handled the same way: documented, not guessed past.** Wrote
+`component_reference/icstation_soil_moisture_sensor.md` (status:
+INCOMPLETE, same template as `sg90_servo.md`) recording what's
+confirmed vs. missing, with real provenance (the two screenshots).
+Sent the user a diagram showing exactly what's grounded (probe pitch,
+mounting-hole spec) vs. what isn't (the channel geometry), instead of
+proceeding to a live Fusion build on an ungrounded guess.
+
+### Why this matters for the project, not just this part
+This is a real, unprompted exercise of the project's core rule --
+never invent a mechanical dimension from a guess or an unclear
+photo -- on a genuinely new request, not a revisit of the SG90 case.
+Also the first real test of the intake-form -> design_specs/ ->
+session pipeline end to end: it worked. The form's required fields
+(dimensions, application, budget) were all present and usable; the
+gap was in what the fields *contained* (requester's own estimate
+vs. measured fact), which is exactly the kind of thing Phase 0 is
+for catching before Phase 1.
+
+### What's still open
+- Waiting on either a caliper measurement of the housing or a clear
+  end-on photo with a size reference, same resolution path that
+  worked for the SG90 bracket.
+- No build has happened for this part. `design_specs/moistureSensorDroneMount`
+  is unchanged -- nothing promoted to `library/` yet, correctly, since
+  there's nothing real to promote.
+- The file itself has no extension and isn't named per the
+  `<slug>_request.json` convention used elsewhere -- cosmetic, not
+  blocking, worth tidying whenever it's touched next.
